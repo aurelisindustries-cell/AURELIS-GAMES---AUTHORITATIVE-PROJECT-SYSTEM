@@ -1,0 +1,200 @@
+[gd_scene format=3 uid="uid://ovfrlt8m3wck"]
+
+[ext_resource type="Script" uid="uid://cvg0sf86ome3l" path="res://GameComponents/Characters/character_entity.gd" id="1"]
+[ext_resource type="Script" uid="uid://dgwyfnc3xtvnw" path="res://GameComponents/Systems/StateMachine/state_machine.gd" id="2"]
+[ext_resource type="Script" uid="uid://r3m0qq6327nw" path="res://GameComponents/Characters/States/Idle.gd" id="3"]
+[ext_resource type="Script" uid="uid://ygpxd4vhbrl2" path="res://GameComponents/Characters/States/move.gd" id="4"]
+[ext_resource type="Script" uid="uid://cwrxr241biu5g" path="res://GameComponents/Characters/States/airborne.gd" id="5"]
+[ext_resource type="Script" uid="uid://bcbibh5hs281i" path="res://GameComponents/Characters/Components/character_controller_2d.gd" id="6"]
+[ext_resource type="Script" uid="uid://c61b5me4sdvnk" path="res://GameComponents/Characters/Components/character_navigator_2d.gd" id="7"]
+[ext_resource type="Script" uid="uid://dg0i2v0o3pour" path="res://GameComponents/Combat/health_component.gd" id="8"]
+[ext_resource type="Script" uid="uid://woabq1w1thiv" path="res://GameComponents/Combat/hurtbox_component_2d.gd" id="9"]
+[ext_resource type="Script" uid="uid://cmj1auska60we" path="res://GameComponents/Combat/combat_reaction_component_2d.gd" id="10"]
+[ext_resource type="Script" uid="uid://dnwcvjldy3u3b" path="res://GameComponents/Combat/UI/world_health_bar_2d.gd" id="11"]
+[ext_resource type="PackedScene" path="res://GameComponents/Combat/UI/damage_number_2d.tscn" id="12"]
+[ext_resource type="Script" uid="uid://d0qfhvoxrmyyy" path="res://GameComponents/Enemies/enemy_lifecycle_component.gd" id="13"]
+[ext_resource type="Script" uid="uid://e4eash8w182r" path="res://GameComponents/AI/ai_root.gd" id="14"]
+[ext_resource type="Script" uid="uid://uaurqvo6ceph" path="res://GameComponents/AI/Tasks/patrol_between_points.gd" id="15"]
+[ext_resource type="Script" uid="uid://bqiyort0eya0h" path="res://GameComponents/AI/navigation_point_2d.gd" id="16"]
+[ext_resource type="Script" path="res://GameComponents/Combat/hitbox_component_2d.gd" id="17"]
+[ext_resource type="Script" path="res://GameComponents/Combat/hit_data.gd" id="18"]
+[ext_resource type="PackedScene" path="res://GameComponents/Combat/health_pickup_2d.tscn" id="19"]
+[ext_resource type="Script" path="res://GameComponents/Characters/Components/character_motion_animator.gd" id="20"]
+
+[sub_resource type="StyleBoxFlat" id="HealthBackground"]
+bg_color = Color(0.06, 0.07, 0.09, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.55, 0.65, 0.7, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="HealthFill"]
+bg_color = Color(0.9, 0.25, 0.3, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="CapsuleShape2D" id="BodyShape"]
+radius = 13.0
+height = 58.0
+
+[sub_resource type="CircleShape2D" id="ContactShape"]
+radius = 3.0
+
+[sub_resource type="Resource" id="ContactHit"]
+script = ExtResource("18")
+damage = 1
+knockback = Vector2(42, -12)
+reaction = "knockback"
+reaction_duration = 0.35
+attack_type = &"enemy_contact"
+faction = &"enemy"
+
+[node name="PatrolEnemy" type="CharacterBody2D" unique_id=1850284047 groups=["enemies"]]
+collision_layer = 64
+collision_mask = 2
+floor_constant_speed = true
+floor_snap_length = 5.0
+script = ExtResource("1")
+
+[node name="Visuals" type="Node2D" parent="." unique_id=1855569269]
+
+[node name="Body" type="Polygon2D" parent="Visuals" unique_id=1950953132]
+color = Color(0.9, 0.25, 0.3, 1)
+polygon = PackedVector2Array(-13, -58, 13, -58, 13, 0, -13, 0)
+
+[node name="Movement" type="Node2D" parent="." unique_id=1338790974]
+
+[node name="StateMachine" type="Node" parent="Movement" unique_id=426342837]
+script = ExtResource("2")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="Movement/StateMachine" unique_id=896542989]
+script = ExtResource("3")
+
+[node name="Walk" type="Node" parent="Movement/StateMachine" unique_id=1657196653]
+script = ExtResource("4")
+speed = 120.0
+
+[node name="Airborne" type="Node" parent="Movement/StateMachine" unique_id=186849549]
+script = ExtResource("5")
+air_speed = 120.0
+
+[node name="CharacterController" type="Node2D" parent="Movement" unique_id=2040211868 node_paths=PackedStringArray("controlling", "character_visual", "state_machine")]
+script = ExtResource("6")
+controlling = NodePath("../..")
+character_visual = NodePath("../../Visuals")
+state_machine = NodePath("../StateMachine")
+move_speed = 120.0
+has_slide = false
+has_dash = false
+has_air_dash = false
+has_propulsor_step = false
+has_double_jump = false
+has_wall_slide = false
+has_wall_jump = false
+has_ledge_flow = false
+
+[node name="CharacterNavigator2D" type="Node2D" parent="Movement" unique_id=948237634]
+script = ExtResource("7")
+
+[node name="Combat" type="Node2D" parent="." unique_id=1042799749]
+
+[node name="HealthComponent" type="Node" parent="Combat" unique_id=2090785116]
+script = ExtResource("8")
+
+[node name="HealthBar" type="ProgressBar" parent="Combat" unique_id=516769128 node_paths=PackedStringArray("health")]
+z_index = 20
+offset_left = -32.0
+offset_top = -76.0
+offset_right = 32.0
+offset_bottom = -68.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("HealthBackground")
+theme_override_styles/fill = SubResource("HealthFill")
+show_percentage = false
+script = ExtResource("11")
+health = NodePath("../HealthComponent")
+
+[node name="HurtboxComponent2D" type="Area2D" parent="Combat" unique_id=597557145 node_paths=PackedStringArray("health")]
+position = Vector2(0, -29)
+collision_layer = 8
+collision_mask = 0
+script = ExtResource("9")
+health = NodePath("../HealthComponent")
+faction = &"enemy"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Combat/HurtboxComponent2D" unique_id=91852442]
+shape = SubResource("BodyShape")
+
+[node name="ContactHitbox" type="Area2D" parent="Combat"]
+position = Vector2(0, -29)
+collision_layer = 16
+collision_mask = 8
+script = ExtResource("17")
+default_hit = SubResource("ContactHit")
+active_on_ready = true
+repeat_hit_interval = 0.75
+show_active_shape = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Combat/ContactHitbox"]
+shape = SubResource("ContactShape")
+
+[node name="CombatReactionComponent2D" type="Node" parent="Combat" unique_id=1015391584 node_paths=PackedStringArray("hurtbox", "body")]
+script = ExtResource("10")
+hurtbox = NodePath("../HurtboxComponent2D")
+body = NodePath("../..")
+
+[node name="EnemyLifecycleComponent" type="Node" parent="Combat" unique_id=158341846 node_paths=PackedStringArray("body", "health", "hurtbox", "body_collision", "visuals", "health_bar", "screen_notifier")]
+script = ExtResource("13")
+damage_number_scene = ExtResource("12")
+pickup_scene = ExtResource("19")
+body = NodePath("../..")
+health = NodePath("../HealthComponent")
+hurtbox = NodePath("../HurtboxComponent2D")
+body_collision = NodePath("../../Collision")
+visuals = NodePath("../../Visuals")
+health_bar = NodePath("../HealthBar")
+screen_notifier = NodePath("../../VisibleOnScreenNotifier2D")
+
+[node name="AI" type="Node" parent="." unique_id=544765588]
+
+[node name="AIRoot" type="Node" parent="AI" unique_id=714913978 node_paths=PackedStringArray("actor", "state_machine", "character_controller", "navigator", "health")]
+script = ExtResource("14")
+actor = NodePath("../..")
+state_machine = NodePath("../../Movement/StateMachine")
+character_controller = NodePath("../../Movement/CharacterController")
+navigator = NodePath("../../Movement/CharacterNavigator2D")
+health = NodePath("../../Combat/HealthComponent")
+
+[node name="PatrolBetweenPoints" type="Node" parent="AI/AIRoot" unique_id=1612080135 node_paths=PackedStringArray("point_a", "point_b")]
+script = ExtResource("15")
+point_a = NodePath("../../../NavigationPoints/NavigationPointA")
+point_b = NodePath("../../../NavigationPoints/NavigationPointB")
+
+[node name="NavigationPoints" type="Node2D" parent="." unique_id=2137935966]
+
+[node name="NavigationPointA" type="Marker2D" parent="NavigationPoints" unique_id=2048805414]
+position = Vector2(-120, 0)
+script = ExtResource("16")
+
+[node name="NavigationPointB" type="Marker2D" parent="NavigationPoints" unique_id=1682844329]
+position = Vector2(120, 0)
+script = ExtResource("16")
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="." unique_id=653453100]
+position = Vector2(0, -29)
+rect = Rect2(-20, -34, 40, 68)
+
+[node name="CharacterMotionAnimator" type="Node" parent="."]
+script = ExtResource("20")
+
+[node name="Collision" type="CollisionShape2D" parent="." unique_id=785793084]
+position = Vector2(0, -29)
+shape = SubResource("BodyShape")

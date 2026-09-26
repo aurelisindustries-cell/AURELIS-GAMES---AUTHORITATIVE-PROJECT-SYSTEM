@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://GameComponents/Enemies/BossArea/boss_arena_gate.gd" id="1"]
+
+[sub_resource type="RectangleShape2D" id="GateShape"]
+size = Vector2(24, 240)
+
+[node name="BossArenaGate" type="StaticBody2D" node_paths=PackedStringArray("gate_visual", "gate_collision")]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1")
+gate_visual = NodePath("Visual")
+gate_collision = NodePath("CollisionShape2D")
+
+[node name="Visual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-12, -120, 12, -120, 12, 120, -12, 120)
+color = Color(0.9, 0.2, 0.2, 0.75)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("GateShape")

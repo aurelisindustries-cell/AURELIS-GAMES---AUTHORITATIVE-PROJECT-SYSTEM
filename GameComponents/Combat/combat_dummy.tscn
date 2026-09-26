@@ -1,0 +1,80 @@
+[gd_scene format=3 uid="uid://cxfyhcsp76gbn"]
+
+[ext_resource type="Script" uid="uid://cjknwh444vfs5" path="res://GameComponents/Combat/combat_dummy.gd" id="1"]
+[ext_resource type="Script" uid="uid://dg0i2v0o3pour" path="res://GameComponents/Combat/health_component.gd" id="2"]
+[ext_resource type="Script" uid="uid://woabq1w1thiv" path="res://GameComponents/Combat/hurtbox_component_2d.gd" id="3"]
+[ext_resource type="Script" path="res://GameComponents/Combat/UI/world_health_bar_2d.gd" id="4"]
+[ext_resource type="PackedScene" path="res://GameComponents/Combat/UI/damage_number_2d.tscn" id="5"]
+[ext_resource type="Script" path="res://GameComponents/Combat/combat_reaction_component_2d.gd" id="6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dummy"]
+size = Vector2(32, 64)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_health_background"]
+bg_color = Color(0.06, 0.07, 0.09, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.55, 0.65, 0.7, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_health_fill"]
+bg_color = Color(0.2, 0.9, 0.45, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[node name="CombatDummy" type="CharacterBody2D" unique_id=963592215 groups=["enemies"]]
+collision_layer = 64
+collision_mask = 2
+script = ExtResource("1")
+damage_number_scene = ExtResource("5")
+
+[node name="Visual" type="Polygon2D" parent="." unique_id=189558221]
+color = Color(0.95, 0.3, 0.3, 1)
+polygon = PackedVector2Array(-16, -64, 16, -64, 16, 0, -16, 0)
+
+[node name="BodyCollision" type="CollisionShape2D" parent="." unique_id=1527216870]
+position = Vector2(0, -32)
+shape = SubResource("RectangleShape2D_dummy")
+
+[node name="HealthComponent" type="Node" parent="." unique_id=211362163]
+script = ExtResource("2")
+max_health = 9999
+
+[node name="HealthBar" type="ProgressBar" parent="." unique_id=303001]
+z_index = 20
+offset_left = -38.0
+offset_top = -82.0
+offset_right = 38.0
+offset_bottom = -72.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_health_background")
+theme_override_styles/fill = SubResource("StyleBoxFlat_health_fill")
+show_percentage = false
+script = ExtResource("4")
+health = NodePath("../HealthComponent")
+
+[node name="HurtboxComponent2D" type="Area2D" parent="." unique_id=1659580580 node_paths=PackedStringArray("health")]
+position = Vector2(0, -32)
+collision_layer = 8
+collision_mask = 0
+script = ExtResource("3")
+health = NodePath("../HealthComponent")
+faction = &"enemy"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent2D" unique_id=402156203]
+shape = SubResource("RectangleShape2D_dummy")
+
+[node name="CombatReactionComponent2D" type="Node" parent="." node_paths=PackedStringArray("hurtbox", "body")]
+script = ExtResource("6")
+hurtbox = NodePath("../HurtboxComponent2D")
+body = NodePath("..")
+recoil_distance = 5.0
+forced_stagger_distance = 24.0
+knockback_multiplier = 0.35

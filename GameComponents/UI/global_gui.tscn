@@ -1,0 +1,101 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://GameComponents/UI/global_gui.gd" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="PanelStyle"]
+bg_color = Color(0.03, 0.04, 0.06, 0.82)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="BarBackground"]
+bg_color = Color(0.08, 0.08, 0.1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.75, 0.78, 0.85, 1)
+
+[sub_resource type="StyleBoxFlat" id="PlayerFill"]
+bg_color = Color(0.2, 0.85, 0.45, 1)
+
+[sub_resource type="StyleBoxFlat" id="BossFill"]
+bg_color = Color(0.9, 0.18, 0.2, 1)
+
+[node name="GlobalGUI" type="CanvasLayer"]
+layer = 50
+script = ExtResource("1")
+
+[node name="PlayerPanel" type="PanelContainer" parent="."]
+offset_left = 22.0
+offset_top = 20.0
+offset_right = 292.0
+offset_bottom = 78.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PanelStyle")
+
+[node name="Margin" type="MarginContainer" parent="PlayerPanel"]
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 7
+
+[node name="Layout" type="VBoxContainer" parent="PlayerPanel/Margin"]
+
+[node name="Header" type="HBoxContainer" parent="PlayerPanel/Margin/Layout"]
+
+[node name="Title" type="Label" parent="PlayerPanel/Margin/Layout/Header"]
+layout_mode = 2
+text = "PLAYER"
+
+[node name="PlayerHealthText" type="Label" parent="PlayerPanel/Margin/Layout/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 10
+text = "16 / 16"
+
+[node name="PlayerHealthBar" type="ProgressBar" parent="PlayerPanel/Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(250, 14)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("BarBackground")
+theme_override_styles/fill = SubResource("PlayerFill")
+show_percentage = false
+
+[node name="BossPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+anchors_preset = 10
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -260.0
+offset_top = 24.0
+offset_right = 260.0
+offset_bottom = 84.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PanelStyle")
+
+[node name="Margin" type="MarginContainer" parent="BossPanel"]
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="Layout" type="VBoxContainer" parent="BossPanel/Margin"]
+
+[node name="BossName" type="Label" parent="BossPanel/Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "BOSS"
+horizontal_alignment = 1
+
+[node name="BossHealthBar" type="ProgressBar" parent="BossPanel/Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(496, 18)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("BarBackground")
+theme_override_styles/fill = SubResource("BossFill")
+show_percentage = false

@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://ug0gayyxe7aa"]
+
+[ext_resource type="Script" uid="uid://g3yv885twftg" path="res://GameComponents/Audio/sfx_manager.gd" id="1"]
+[ext_resource type="AudioStream" uid="uid://b4ycgxvkdtiy7" path="res://Assets/Audio/jump.wav" id="2_3mwru"]
+[ext_resource type="AudioStream" uid="uid://hmeir8g3iiqf" path="res://Assets/Audio/X3/MMX3_7.wav" id="2_haq62"]
+[ext_resource type="AudioStream" uid="uid://vi4bcywomm4m" path="res://Assets/Audio/X3/MMX3_8.wav" id="3_n08he"]
+[ext_resource type="AudioStream" uid="uid://d271evxvs8ae2" path="res://Assets/Audio/sword-slash.wav" id="4_eguu8"]
+[ext_resource type="AudioStream" uid="uid://d0xcylh3dq4lb" path="res://Assets/Audio/X3/MMX3_2.wav" id="4_tlxvs"]
+[ext_resource type="AudioStream" uid="uid://dglolqjee60q1" path="res://Assets/Audio/X3/MMX3_12.wav" id="6_3mwru"]
+[ext_resource type="AudioStream" uid="uid://d22o2ttuvxv01" path="res://Assets/Audio/X3/MMX3_18.wav" id="7_0eqvt"]
+[ext_resource type="AudioStream" uid="uid://cvy3i6wviy4mr" path="res://Assets/Audio/MegamanX3/MMX3_SE_00018.wav" id="8_0eqvt"]
+[ext_resource type="AudioStream" uid="uid://dj6clrfamlr5g" path="res://Assets/Audio/X3/MMX3_16.wav" id="8_rlg7k"]
+[ext_resource type="AudioStream" uid="uid://ppxn6ksqsjqu" path="res://Assets/Audio/X3/MMX3_14.wav" id="9_jrruu"]
+
+[node name="SFX" type="Node" unique_id=1024903289]
+script = ExtResource("1")
+jump_sound = ExtResource("2_3mwru")
+dash_sound = ExtResource("2_haq62")
+slide_sound = ExtResource("2_haq62")
+land_sound = ExtResource("3_n08he")
+dagger_sound = ExtResource("4_eguu8")
+caster_sound = ExtResource("4_tlxvs")
+player_damage_sound = ExtResource("6_3mwru")
+enemy_damage_sound = ExtResource("8_0eqvt")
+enemy_death_sound = ExtResource("7_0eqvt")
+boss_phase_sound = ExtResource("8_rlg7k")
+boss_defeated_sound = ExtResource("9_jrruu")

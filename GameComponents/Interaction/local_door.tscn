@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://df2flskug4g4y"]
+
+[ext_resource type="Script" uid="uid://cg2nhaw0e3hio" path="res://GameComponents/Interaction/local_door.gd" id="1_door"]
+[ext_resource type="Script" uid="uid://dd7i48348u5vu" path="res://GameComponents/Interaction/interaction_component_2d.gd" id="2_interaction"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
+size = Vector2(40, 64)
+
+[node name="LocalDoor" type="Node2D" unique_id=1707379330]
+script = ExtResource("1_door")
+
+[node name="Door" type="Polygon2D" parent="." unique_id=1039010817]
+color = Color(0.12, 0.2, 0.24, 1)
+polygon = PackedVector2Array(-20, 0, -20, -64, 20, -64, 20, 0)
+
+[node name="InteractionComponent2D" type="Area2D" parent="." unique_id=1219030962]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("2_interaction")
+valid_interactions = Array[StringName]([&"Up"])
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionComponent2D" unique_id=194644186]
+position = Vector2(0, -32)
+shape = SubResource("RectangleShape2D_door")
+
+[node name="ArrivalPoint" type="Marker2D" parent="." unique_id=2020291272]
+
+[connection signal="interaction_received" from="InteractionComponent2D" to="." method="_on_interaction_received"]

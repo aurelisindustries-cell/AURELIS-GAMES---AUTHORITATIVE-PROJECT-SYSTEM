@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://chmqong6pvin8"]
+
+[ext_resource type="PackedScene" path="res://GameComponents/Enemies/flying_enemy.tscn" id="1"]
+[ext_resource type="Script" uid="uid://uaurqvo6ceph" path="res://GameComponents/AI/Tasks/patrol_between_points.gd" id="2"]
+[ext_resource type="Script" uid="uid://bqiyort0eya0h" path="res://GameComponents/AI/navigation_point_2d.gd" id="3"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_w8geg"]
+radius = 16.0
+
+[node name="FlyingPatrolEnemy" unique_id=713162065 instance=ExtResource("1")]
+
+[node name="CollisionShape2D" parent="Combat/HurtboxComponent2D" index="0"]
+shape = SubResource("CircleShape2D_w8geg")
+
+[node name="PatrolBetweenPoints" type="Node" parent="AI/AIRoot" index="0" unique_id=741453488 node_paths=PackedStringArray("point_a", "point_b")]
+script = ExtResource("2")
+point_a = NodePath("../../../NavigationPoints/NavigationPointA")
+point_b = NodePath("../../../NavigationPoints/NavigationPointB")
+use_vertical_movement = true
+
+[node name="NavigationPoints" type="Node2D" parent="." index="6" unique_id=1266641976]
+
+[node name="NavigationPointA" type="Marker2D" parent="NavigationPoints" index="0" unique_id=1357934005]
+position = Vector2(0, -72)
+script = ExtResource("3")
+
+[node name="NavigationPointB" type="Marker2D" parent="NavigationPoints" index="1" unique_id=251882180]
+position = Vector2(0, 80)
+script = ExtResource("3")

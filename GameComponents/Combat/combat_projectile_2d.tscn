@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://GameComponents/Combat/combat_projectile_2d.gd" id="1"]
+[ext_resource type="PackedScene" path="res://GameComponents/Combat/Visuals/caster_burst_visual_2d.tscn" id="2"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_projectile"]
+radius = 5.0
+
+[node name="CombatProjectile2D" type="Area2D"]
+collision_layer = 16
+collision_mask = 10
+script = ExtResource("1")
+impact_scene = ExtResource("2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_projectile")
+
+[node name="Visual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-7, -3, 7, -3, 7, 3, -7, 3)
+color = Color(0.25, 0.9, 1, 1)

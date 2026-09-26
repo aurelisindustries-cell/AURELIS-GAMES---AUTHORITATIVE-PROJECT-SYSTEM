@@ -1,0 +1,338 @@
+[gd_scene format=3 uid="uid://bpchurys4ffe2"]
+
+[ext_resource type="Script" uid="uid://cvg0sf86ome3l" path="res://GameComponents/Characters/character_entity.gd" id="1_osqe2"]
+[ext_resource type="Script" uid="uid://dgwyfnc3xtvnw" path="res://GameComponents/Systems/StateMachine/state_machine.gd" id="2_5sbvk"]
+[ext_resource type="Script" uid="uid://dfi4j432r7wcs" path="res://GameComponents/Characters/Components/input_handler_2d.gd" id="3_input"]
+[ext_resource type="Script" uid="uid://bcbibh5hs281i" path="res://GameComponents/Characters/Components/character_controller_2d.gd" id="4_controller"]
+[ext_resource type="Script" uid="uid://c2dbhr58s2ian" path="res://GameComponents/Characters/Components/directional_pivot.gd" id="5_pivot"]
+[ext_resource type="Script" uid="uid://c61b5me4sdvnk" path="res://GameComponents/Characters/Components/character_navigator_2d.gd" id="6_navigator"]
+[ext_resource type="Script" uid="uid://r3m0qq6327nw" path="res://GameComponents/Characters/States/Idle.gd" id="7_idle"]
+[ext_resource type="Script" uid="uid://ygpxd4vhbrl2" path="res://GameComponents/Characters/States/move.gd" id="8_move"]
+[ext_resource type="Script" uid="uid://cwrxr241biu5g" path="res://GameComponents/Characters/States/airborne.gd" id="9_airborne"]
+[ext_resource type="Script" uid="uid://dv2y80yu5vol1" path="res://GameComponents/Characters/States/dash.gd" id="10_dash"]
+[ext_resource type="Script" uid="uid://b6we5qdpwh4f8" path="res://GameComponents/Characters/States/slide.gd" id="11_slide"]
+[ext_resource type="Script" uid="uid://db65y317ex6px" path="res://GameComponents/Characters/States/wall_slide.gd" id="12_wall"]
+[ext_resource type="Script" uid="uid://bdkleltwgaqak" path="res://GameComponents/Characters/States/ledge_hang.gd" id="13_ledge"]
+[ext_resource type="Script" uid="uid://b8tdt4ucbo6vl" path="res://GameComponents/Characters/Components/state_machine_label.gd" id="14_state_label"]
+[ext_resource type="Script" uid="uid://bi7ij3p8wqbr5" path="res://GameComponents/Interaction/interacting_component_2d.gd" id="15_interacting"]
+[ext_resource type="Script" uid="uid://dg0i2v0o3pour" path="res://GameComponents/Combat/health_component.gd" id="16_health"]
+[ext_resource type="Script" uid="uid://woabq1w1thiv" path="res://GameComponents/Combat/hurtbox_component_2d.gd" id="17_hurtbox"]
+[ext_resource type="Script" uid="uid://cnbapjhp475ax" path="res://GameComponents/Combat/hitbox_component_2d.gd" id="18_hitbox"]
+[ext_resource type="Script" uid="uid://d5qsrxt605gh" path="res://GameComponents/Combat/player_combat_controller.gd" id="19_combat"]
+[ext_resource type="PackedScene" path="res://GameComponents/Combat/combat_projectile_2d.tscn" id="20_projectile"]
+[ext_resource type="Script" uid="uid://gc7klq3oix23" path="res://GameComponents/Combat/damage_reaction_component_2d.gd" id="21_reaction"]
+[ext_resource type="PackedScene" path="res://GameComponents/Combat/Visuals/dagger_slash_visual_2d.tscn" id="22_dagger_visual"]
+[ext_resource type="Script" uid="uid://cgvvre40hyv18" path="res://GameComponents/Combat/Visuals/aim_indicator_2d.gd" id="23_aim_indicator"]
+[ext_resource type="AnimationLibrary" uid="uid://bdfchtp7ngrpf" path="res://GameComponents/Player/player_combat_animations.tres" id="24_combat_animations"]
+[ext_resource type="Script" uid="uid://cq6m1wwkhvua2" path="res://addons/hitbox_authoring/hitbox_spawner_2d.gd" id="25_hitbox_spawner"]
+[ext_resource type="Script" uid="uid://ba07h2pud2fo4" path="res://GameComponents/Combat/hit_data.gd" id="27_hit_data"]
+[ext_resource type="Script" uid="uid://dlg7eglcbh6rs" path="res://addons/hitbox_authoring/hitbox_authoring_handle_2d.gd" id="28_hitbox_handle"]
+[ext_resource type="PackedScene" path="res://GameComponents/Combat/Visuals/caster_burst_visual_2d.tscn" id="29_caster_burst"]
+[ext_resource type="Script" path="res://GameComponents/Player/player_lifecycle_component.gd" id="30_lifecycle"]
+[ext_resource type="Script" path="res://GameComponents/Characters/Components/character_motion_animator.gd" id="31_animator"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hurtbox"]
+radius = 11.0
+height = 50.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dagger"]
+size = Vector2(34, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_authored_normal"]
+size = Vector2(48, 40)
+
+[sub_resource type="Resource" id="HitData_normal"]
+script = ExtResource("27_hit_data")
+damage = 5
+hit_stop = 0.035
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_authored_normal_2"]
+size = Vector2(48, 40)
+
+[sub_resource type="Resource" id="HitData_normal_2"]
+script = ExtResource("27_hit_data")
+damage = 5
+hit_stop = 0.035
+attack_type = &"normal_2"
+reaction = "forced_stagger"
+reaction_duration = 0.2
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_authored_normal_3"]
+size = Vector2(48, 40)
+
+[sub_resource type="Resource" id="HitData_normal_3"]
+script = ExtResource("27_hit_data")
+damage = 5
+knockback = Vector2(0, -280)
+hit_stop = 0.035
+attack_type = &"normal_3"
+reaction = "launch"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_authored_up"]
+size = Vector2(38, 48)
+
+[sub_resource type="Resource" id="HitData_up"]
+script = ExtResource("27_hit_data")
+damage = 5
+hit_stop = 0.035
+attack_type = &"up_slash"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_authored_down"]
+size = Vector2(38, 68)
+
+[sub_resource type="Resource" id="HitData_down"]
+script = ExtResource("27_hit_data")
+damage = 5
+hit_stop = 0.035
+attack_type = &"downstab"
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_interaction"]
+radius = 52.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_reeem"]
+radius = 13.0
+height = 58.0
+
+[node name="Player" type="CharacterBody2D" unique_id=2031822600 groups=["player"]]
+collision_mask = 2
+floor_constant_speed = true
+floor_snap_length = 5.0
+script = ExtResource("1_osqe2")
+
+[node name="Visuals" type="Node2D" parent="." unique_id=1630887701]
+
+[node name="DirectionalPivot" type="Marker2D" parent="Visuals" unique_id=1649025941]
+script = ExtResource("5_pivot")
+
+[node name="ColorRect" type="ColorRect" parent="Visuals/DirectionalPivot" unique_id=150902823]
+offset_left = -14.0
+offset_top = -42.0
+offset_right = 14.0
+offset_bottom = 16.0
+color = Color(0.3254902, 1, 0, 1)
+
+[node name="AttackAnimationRig" type="Node2D" parent="Visuals" unique_id=445764903]
+position = Vector2(0, -22)
+rotation = 1.570796
+
+[node name="Dagger" type="Polygon2D" parent="Visuals/AttackAnimationRig" unique_id=1533378443]
+visible = false
+color = Color(0.65, 0.95, 1, 1)
+polygon = PackedVector2Array(5, -3, 38, -2, 46, 0, 38, 2, 5, 3, -2, 7, -2, -7)
+
+[node name="Movement" type="Node2D" parent="." unique_id=1677372897]
+
+[node name="StateMachine" type="Node" parent="Movement" unique_id=1497861798]
+script = ExtResource("2_5sbvk")
+initial_state = NodePath("Idle")
+metadata/_custom_type_script = "uid://dgwyfnc3xtvnw"
+
+[node name="Idle" type="Node" parent="Movement/StateMachine" unique_id=1855629722]
+script = ExtResource("7_idle")
+
+[node name="Walk" type="Node" parent="Movement/StateMachine" unique_id=383185679]
+script = ExtResource("8_move")
+
+[node name="Airborne" type="Node" parent="Movement/StateMachine" unique_id=122420702]
+script = ExtResource("9_airborne")
+
+[node name="Dash" type="Node" parent="Movement/StateMachine" unique_id=541141062]
+script = ExtResource("10_dash")
+
+[node name="Slide" type="Node" parent="Movement/StateMachine" unique_id=641306520]
+script = ExtResource("11_slide")
+
+[node name="WallSlide" type="Node" parent="Movement/StateMachine" unique_id=53758775]
+script = ExtResource("12_wall")
+
+[node name="LedgeHang" type="Node" parent="Movement/StateMachine" unique_id=201208739]
+script = ExtResource("13_ledge")
+
+[node name="CharacterController" type="Node2D" parent="Movement" unique_id=1940504545 node_paths=PackedStringArray("controlling", "character_visual", "state_machine")]
+script = ExtResource("4_controller")
+controlling = NodePath("../..")
+character_visual = NodePath("../../Visuals/DirectionalPivot/ColorRect")
+state_machine = NodePath("../StateMachine")
+ground_acceleration = 3000.0
+ground_deceleration = 3500.0
+
+[node name="InputHandler2D" type="Node" parent="Movement" unique_id=812152339]
+script = ExtResource("3_input")
+
+[node name="CharacterNavigator2D" type="Node2D" parent="Movement" unique_id=1012300617]
+script = ExtResource("6_navigator")
+
+[node name="LedgeSensors" type="Node2D" parent="Movement" unique_id=163842968]
+
+[node name="WallRay" type="RayCast2D" parent="Movement/LedgeSensors" unique_id=1168601332]
+position = Vector2(0, -24)
+target_position = Vector2(30, 0)
+collision_mask = 2
+
+[node name="ClearanceRay" type="RayCast2D" parent="Movement/LedgeSensors" unique_id=1797852948]
+position = Vector2(0, -56)
+target_position = Vector2(30, 0)
+collision_mask = 2
+
+[node name="Combat" type="Node2D" parent="." unique_id=1709392284]
+
+[node name="HealthComponent" type="Node" parent="Combat" unique_id=695986395]
+script = ExtResource("16_health")
+
+[node name="HurtboxComponent2D" type="Area2D" parent="Combat" unique_id=770769127 node_paths=PackedStringArray("health")]
+position = Vector2(0, -16)
+collision_layer = 8
+collision_mask = 0
+script = ExtResource("17_hurtbox")
+health = NodePath("../HealthComponent")
+faction = &"player"
+invulnerability_duration = 0.8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Combat/HurtboxComponent2D" unique_id=1824472308]
+position = Vector2(0, 3)
+shape = SubResource("CapsuleShape2D_hurtbox")
+debug_color = Color(0.99215686, 0.08627451, 0, 1)
+
+[node name="DaggerHitbox" type="Area2D" parent="Combat" unique_id=1138228080]
+collision_layer = 16
+collision_mask = 8
+script = ExtResource("18_hitbox")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Combat/DaggerHitbox" unique_id=1982692130]
+shape = SubResource("RectangleShape2D_dagger")
+
+[node name="ArcCasterAimRig" type="Node2D" parent="Combat" unique_id=177811885]
+position = Vector2(0, -13)
+
+[node name="ArcCasterMuzzle" type="Marker2D" parent="Combat/ArcCasterAimRig" unique_id=1719485955]
+position = Vector2(24, 0)
+gizmo_extents = 8.0
+
+[node name="AimIndicator" type="Node2D" parent="Combat/ArcCasterAimRig" unique_id=425616178]
+z_index = 4
+script = ExtResource("23_aim_indicator")
+
+[node name="CombatAnimationPlayer" type="AnimationPlayer" parent="Combat" unique_id=1048187640]
+root_node = NodePath("../..")
+libraries/ = ExtResource("24_combat_animations")
+
+[node name="HitboxSpawner2D" type="Node2D" parent="Combat" unique_id=1313147819 node_paths=PackedStringArray("animation_player", "attack_source")]
+script = ExtResource("25_hitbox_spawner")
+animation_player = NodePath("../CombatAnimationPlayer")
+attack_source = NodePath("../..")
+
+[node name="Hitbox_dagger_normal" type="Node2D" parent="Combat/HitboxSpawner2D" unique_id=1361007830]
+position = Vector2(23, -13)
+script = ExtResource("28_hitbox_handle")
+shape = SubResource("RectangleShape2D_authored_normal")
+hit = SubResource("HitData_normal")
+
+[node name="Hitbox_dagger_normal_2" type="Node2D" parent="Combat/HitboxSpawner2D" unique_id=948385295]
+position = Vector2(23, -13)
+script = ExtResource("28_hitbox_handle")
+shape = SubResource("RectangleShape2D_authored_normal_2")
+hit = SubResource("HitData_normal_2")
+
+[node name="Hitbox_dagger_normal_3" type="Node2D" parent="Combat/HitboxSpawner2D" unique_id=1758137415]
+position = Vector2(23, -13)
+script = ExtResource("28_hitbox_handle")
+shape = SubResource("RectangleShape2D_authored_normal_3")
+hit = SubResource("HitData_normal_3")
+
+[node name="Hitbox_dagger_up_slash" type="Node2D" parent="Combat/HitboxSpawner2D" unique_id=608484190]
+position = Vector2(0, -50)
+script = ExtResource("28_hitbox_handle")
+shape = SubResource("RectangleShape2D_authored_up")
+hit = SubResource("HitData_up")
+
+[node name="Hitbox_dagger_downstab" type="Node2D" parent="Combat/HitboxSpawner2D" unique_id=1701881794]
+position = Vector2(0, 38)
+script = ExtResource("28_hitbox_handle")
+shape = SubResource("RectangleShape2D_authored_down")
+hit = SubResource("HitData_down")
+
+[node name="PlayerCombatController" type="Node2D" parent="Combat" unique_id=666947793 node_paths=PackedStringArray("character_controller", "state_machine", "dagger_hitbox", "caster_aim_rig", "caster_muzzle", "aim_indicator", "combat_animation_player", "authored_hitbox_spawner", "attack_visual_rig")]
+script = ExtResource("19_combat")
+character_controller = NodePath("../../Movement/CharacterController")
+state_machine = NodePath("../../Movement/StateMachine")
+projectile_scene = ExtResource("20_projectile")
+dagger_hitbox = NodePath("../DaggerHitbox")
+dagger_visual_scene = ExtResource("22_dagger_visual")
+caster_aim_rig = NodePath("../ArcCasterAimRig")
+caster_muzzle = NodePath("../ArcCasterAimRig/ArcCasterMuzzle")
+aim_indicator = NodePath("../ArcCasterAimRig/AimIndicator")
+combat_animation_player = NodePath("../CombatAnimationPlayer")
+authored_hitbox_spawner = NodePath("../HitboxSpawner2D")
+attack_visual_rig = NodePath("../../Visuals/AttackAnimationRig")
+caster_burst_scene = ExtResource("29_caster_burst")
+dagger_combo_upgrades = 2
+
+[node name="DamageReactionComponent2D" type="Node" parent="Combat" unique_id=169475877 node_paths=PackedStringArray("hurtbox", "body")]
+script = ExtResource("21_reaction")
+hurtbox = NodePath("../HurtboxComponent2D")
+body = NodePath("../..")
+
+[node name="PlayerLifecycleComponent" type="Node" parent="Combat" node_paths=PackedStringArray("body", "health", "hurtbox", "visuals")]
+script = ExtResource("30_lifecycle")
+body = NodePath("../..")
+health = NodePath("../HealthComponent")
+hurtbox = NodePath("../HurtboxComponent2D")
+visuals = NodePath("../../Visuals")
+
+[node name="Interaction" type="Node2D" parent="." unique_id=1404650468]
+
+[node name="InteractingComponent2D" type="Area2D" parent="Interaction" unique_id=424211538 node_paths=PackedStringArray("actor")]
+visible = false
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+script = ExtResource("15_interacting")
+actor = NodePath("../..")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interaction/InteractingComponent2D" unique_id=1655328954]
+position = Vector2(0, -24)
+shape = SubResource("CircleShape2D_interaction")
+debug_color = Color(0.7947834, 0.07031863, 0.99999994, 0.41960785)
+
+[node name="Collision" type="CollisionShape2D" parent="." unique_id=41024389]
+position = Vector2(0, -13)
+shape = SubResource("CapsuleShape2D_reeem")
+
+[node name="Debug" type="Node2D" parent="." unique_id=918793062]
+
+[node name="CharacterMotionAnimator" type="Node" parent="."]
+script = ExtResource("31_animator")
+run_bob_height = 2.0
+max_lean = 0.075
+
+[node name="StateMachineLabel" type="Label" parent="Debug" unique_id=2120267116 node_paths=PackedStringArray("state_machine", "controller")]
+z_index = 100
+offset_left = -69.0
+offset_top = -176.0
+offset_right = 69.0
+offset_bottom = -135.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 12
+text = "State: None"
+horizontal_alignment = 1
+script = ExtResource("14_state_label")
+state_machine = NodePath("../../Movement/StateMachine")
+controller = NodePath("../../Movement/CharacterController")
+
+[connection signal="ability_requested" from="Movement/InputHandler2D" to="Combat/PlayerCombatController" method="request_ability"]
+[connection signal="aim_updated" from="Movement/InputHandler2D" to="Combat/PlayerCombatController" method="update_aim"]
+[connection signal="caster_requested" from="Movement/InputHandler2D" to="Combat/PlayerCombatController" method="request_caster"]
+[connection signal="core_next_requested" from="Movement/InputHandler2D" to="Combat/PlayerCombatController" method="request_next_core"]
+[connection signal="core_previous_requested" from="Movement/InputHandler2D" to="Combat/PlayerCombatController" method="request_previous_core"]
+[connection signal="core_wheel_closed" from="Movement/InputHandler2D" to="Combat/PlayerCombatController" method="close_core_wheel"]
+[connection signal="core_wheel_opened" from="Movement/InputHandler2D" to="Combat/PlayerCombatController" method="open_core_wheel"]
+[connection signal="dagger_requested" from="Movement/InputHandler2D" to="Combat/PlayerCombatController" method="request_dagger"]
+[connection signal="dash_requested" from="Movement/InputHandler2D" to="Movement/CharacterController" method="request_dash"]
+[connection signal="interaction_pressed" from="Movement/InputHandler2D" to="Interaction/InteractingComponent2D" method="request_interaction"]
+[connection signal="jump_released" from="Movement/InputHandler2D" to="Movement/CharacterController" method="release_jump"]
+[connection signal="jump_requested" from="Movement/InputHandler2D" to="Movement/CharacterController" method="request_jump"]
+[connection signal="overclock_requested" from="Movement/InputHandler2D" to="Combat/PlayerCombatController" method="request_overclock"]
+[connection signal="slide_requested" from="Movement/InputHandler2D" to="Movement/CharacterController" method="request_slide"]
+[connection signal="update_input" from="Movement/InputHandler2D" to="Movement/CharacterController" method="input_update"]

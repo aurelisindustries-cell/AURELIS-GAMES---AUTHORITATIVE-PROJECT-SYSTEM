@@ -1,0 +1,36 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://GameComponents/Enemies/base_enemy.tscn" id="1"]
+
+[node name="ChaseEnemy" instance=ExtResource("1")]
+
+[node name="Walk" parent="Movement/StateMachine" index="1"]
+speed = 150.0
+
+[node name="Airborne" parent="Movement/StateMachine" index="2"]
+air_speed = 150.0
+
+[node name="CharacterController" parent="Movement" index="1"]
+move_speed = 150.0
+
+[node name="HealthComponent" parent="Combat" index="0"]
+max_health = 24
+
+[node name="FindTarget" parent="AI/AIRoot/Fallback/Attack" index="0"]
+maximum_distance = 700.0
+
+[node name="FindTarget" parent="AI/AIRoot/Fallback/Chase" index="0"]
+maximum_distance = 700.0
+
+[node name="EnemyCombatController" parent="AI" index="1"]
+damage = 2
+windup_time = 0.22
+active_time = 0.14
+recovery_time = 0.7
+
+[editable path="Movement/StateMachine"]
+[editable path="Movement"]
+[editable path="Combat"]
+[editable path="AI/AIRoot/Fallback/Attack"]
+[editable path="AI/AIRoot/Fallback/Chase"]
+[editable path="AI"]

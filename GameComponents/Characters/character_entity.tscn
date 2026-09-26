@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://jic1na3j7yko"]
+
+[ext_resource type="Script" uid="uid://cvg0sf86ome3l" path="res://GameComponents/Characters/character_entity.gd" id="1_kmg4i"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_teorn"]
+
+[node name="CharacterEntity" type="CharacterBody2D" unique_id=2031822600]
+script = ExtResource("1_kmg4i")
+
+[node name="Collision" type="CollisionShape2D" parent="." unique_id=41024389]
+shape = SubResource("RectangleShape2D_teorn")

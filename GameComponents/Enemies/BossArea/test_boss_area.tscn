@@ -1,0 +1,49 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://GameComponents/Enemies/BossArea/boss_area.gd" id="1"]
+[ext_resource type="PackedScene" path="res://GameComponents/Enemies/chase_enemy.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://GameComponents/Enemies/BossArea/boss_arena_gate.tscn" id="3"]
+[ext_resource type="Script" path="res://GameComponents/Enemies/BossArea/boss_phase_controller.gd" id="4"]
+
+[sub_resource type="RectangleShape2D" id="TriggerShape"]
+size = Vector2(560, 220)
+
+[node name="TestBossArea" type="Node2D" node_paths=PackedStringArray("boss", "trigger", "gates")]
+script = ExtResource("1")
+boss = NodePath("ChaseEnemy")
+trigger = NodePath("EncounterTrigger")
+gates = Array[ExtResource("3")]([NodePath("LeftGate"), NodePath("RightGate")])
+boss_display_name = "SYNTHESIS WARDEN"
+
+[node name="EncounterTrigger" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EncounterTrigger"]
+shape = SubResource("TriggerShape")
+
+[node name="LeftGate" parent="." instance=ExtResource("3")]
+position = Vector2(-292, 0)
+
+[node name="RightGate" parent="." instance=ExtResource("3")]
+position = Vector2(292, 0)
+
+[node name="ChaseEnemy" parent="." instance=ExtResource("2")]
+position = Vector2(0, 80)
+
+[node name="EnemyLifecycleComponent" parent="ChaseEnemy/Combat" index="4"]
+respawn_enabled = false
+
+[node name="HealthComponent" parent="ChaseEnemy/Combat" index="0"]
+max_health = 64
+
+[node name="EnemyCombatController" parent="ChaseEnemy/AI" index="1"]
+damage = 2
+windup_time = 0.2
+recovery_time = 0.58
+knockback = Vector2(38, -10)
+
+[node name="BossPhaseController" type="Node" parent="ChaseEnemy"]
+script = ExtResource("4")
+
+[editable path="ChaseEnemy"]

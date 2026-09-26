@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://GameComponents/Combat/Visuals/caster_burst_visual_2d.gd" id="1"]
+
+[node name="CasterBurstVisual2D" type="Node2D"]
+z_index = 6
+script = ExtResource("1")
