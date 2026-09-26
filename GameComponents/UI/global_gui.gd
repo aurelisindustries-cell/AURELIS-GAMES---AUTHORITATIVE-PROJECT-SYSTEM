@@ -9,12 +9,26 @@ class_name GlobalGUIController
 
 var _player_health: HealthComponent
 var _boss_health: HealthComponent
+var _hit_stop_generation := 0
 
 
 func _ready() -> void:
 	get_tree().node_added.connect(_on_node_added)
 	boss_panel.visible = false
 	call_deferred("_find_player")
+
+
+func _exit_tree() -> void:
+	Engine.time_scale = 1.0
+
+
+func request_hit_stop(duration: float) -> void:
+	_hit_stop_generation += 1
+	var generation := _hit_stop_generation
+	Engine.time_scale = 0.08
+	await get_tree().create_timer(duration, true, false, true).timeout
+	if generation == _hit_stop_generation:
+		Engine.time_scale = 1.0
 
 
 func _on_node_added(node: Node) -> void:

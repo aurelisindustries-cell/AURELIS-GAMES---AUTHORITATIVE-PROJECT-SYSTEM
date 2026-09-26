@@ -98,11 +98,7 @@ func _on_area_entered(area: Area2D) -> void:
 	var hit := default_hit.copy_for(source) if default_hit else HitData.new()
 	if hurtbox.receive_hit(hit):
 		if hit.hit_stop > 0.0:
-			_apply_hit_stop(hit.hit_stop)
+			var hit_stop_manager := get_node_or_null("/root/GlobalGUI")
+			if hit_stop_manager and hit_stop_manager.has_method("request_hit_stop"):
+				hit_stop_manager.request_hit_stop(hit.hit_stop)
 		hit_landed.emit(hurtbox, hit)
-
-
-func _apply_hit_stop(duration: float) -> void:
-	Engine.time_scale = 0.08
-	await get_tree().create_timer(duration, true, false, true).timeout
-	Engine.time_scale = 1.0
