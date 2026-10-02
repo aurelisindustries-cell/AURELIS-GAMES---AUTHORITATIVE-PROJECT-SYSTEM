@@ -24,7 +24,8 @@ func physics_update(delta: float) -> void:
 	remaining -= delta
 	controller.velocity.x = controller.facing_direction * speed
 	if not air_dash and controller.consume_jump():
-		controller.start_ground_jump(); controller.velocity.x = controller.facing_direction * speed
+		controller.start_ground_jump()
+		controller.velocity.x = controller.facing_direction * speed
 		controller.carrying_dash_momentum = true
 		controller.state_machine.change_state("Airborne"); return
 	if remaining <= 0.0:

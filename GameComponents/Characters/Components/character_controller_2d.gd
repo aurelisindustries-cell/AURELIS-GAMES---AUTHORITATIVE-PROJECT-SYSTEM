@@ -100,9 +100,18 @@ func _physics_process(delta: float) -> void:
 	if not controlling or not state_machine:
 		return
 	jump_buffer_remaining = maxf(jump_buffer_remaining - delta, 0.0)
+	var intended_velocity := velocity
 	controlling.velocity = velocity
 	controlling.move_and_slide()
 	velocity = controlling.velocity
+	if carrying_dash_momentum and controlling.is_on_wall():
+		for index in controlling.get_slide_collision_count():
+			var collision := controlling.get_slide_collision(index)
+			var normal := collision.get_normal()
+			if absf(normal.x) > 0.5 and intended_velocity.dot(normal) < 0.0:
+				velocity = intended_velocity.slide(normal)
+				carrying_dash_momentum = false
+				break
 	var on_floor_now := controlling.is_on_floor()
 	coyote_remaining = coyote_time if on_floor_now else maxf(coyote_remaining - delta, 0.0)
 	if on_floor_now:
