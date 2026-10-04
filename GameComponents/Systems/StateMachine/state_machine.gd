@@ -24,7 +24,8 @@ func _ready() -> void:
 
 
 func change_state(state_name: String) -> void:
-	var next_state := find_child(state_name) as State
+	# Runtime states (such as Burrow) do not have a packed-scene owner.
+	var next_state := find_child(state_name, true, false) as State
 	if not next_state or next_state == current_state:
 		return
 	var previous := &""

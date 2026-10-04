@@ -112,6 +112,7 @@ func _create_instance(data: HitboxFrameData, editor_preview: bool) -> Area2D:
 	area.position = data.position
 	area.rotation = data.rotation
 	area.scale = data.scale
+	if not editor_preview: area.scale *= _upgrade_reach()
 	var collision := CollisionShape2D.new()
 	collision.name = "Shape"
 	if editor_preview:
@@ -122,7 +123,7 @@ func _create_instance(data: HitboxFrameData, editor_preview: bool) -> Area2D:
 	if not editor_preview:
 		var runtime_hitbox := area as HitboxComponent2D
 		runtime_hitbox.hit_landed.connect(_on_runtime_hit_landed.bind(data))
-		runtime_hitbox.activate(data.hit, attack_source)
+		runtime_hitbox.activate(_upgrade_hit(data.hit), attack_source)
 	return area
 
 
@@ -177,6 +178,7 @@ func _refresh_handle_instances() -> void:
 			_instances[handle] = _create_handle_instance(handle)
 		var area := _instances[handle] as Area2D
 		area.transform = handle.transform
+		area.scale *= _upgrade_reach()
 	for key in _instances.keys():
 		if key is HitboxAuthoringHandle2D and not active_handles.has(key):
 			_remove_instance(key)
@@ -193,8 +195,18 @@ func _create_handle_instance(handle: HitboxAuthoringHandle2D) -> HitboxComponent
 	collision.shape = handle.shape.duplicate(true) if handle.shape else RectangleShape2D.new()
 	area.add_child(collision)
 	area.hit_landed.connect(_on_handle_hit_landed.bind(handle))
-	area.activate(handle.hit, attack_source)
+	area.activate(_upgrade_hit(handle.hit), attack_source)
 	return area
+
+
+func _upgrade_hit(hit: HitData) -> HitData:
+	var combat := attack_source.find_child("PlayerCombatController", true, false) if is_instance_valid(attack_source) else null
+	return combat.upgraded_dagger_hit(hit) if combat and hit else hit
+
+
+func _upgrade_reach() -> float:
+	var combat := attack_source.find_child("PlayerCombatController", true, false) if is_instance_valid(attack_source) else null
+	return combat.dagger_reach_multiplier() if combat else 1.0
 
 
 func _on_handle_hit_landed(hurtbox: HurtboxComponent2D, hit: HitData, handle: HitboxAuthoringHandle2D) -> void:

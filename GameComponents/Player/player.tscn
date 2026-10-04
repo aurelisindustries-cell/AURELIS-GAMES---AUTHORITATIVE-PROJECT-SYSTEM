@@ -299,6 +299,7 @@ position = Vector2(0, -13)
 shape = SubResource("CapsuleShape2D_reeem")
 
 [node name="Debug" type="Node2D" parent="." unique_id=918793062]
+visible = false
 
 [node name="CharacterMotionAnimator" type="Node" parent="."]
 script = ExtResource("31_animator")
@@ -322,6 +323,7 @@ state_machine = NodePath("../../Movement/StateMachine")
 controller = NodePath("../../Movement/CharacterController")
 
 [connection signal="ability_requested" from="Movement/InputHandler2D" to="Combat/PlayerCombatController" method="request_ability"]
+[connection signal="caster_released" from="Movement/InputHandler2D" to="Combat/PlayerCombatController" method="release_caster"]
 [connection signal="aim_updated" from="Movement/InputHandler2D" to="Combat/PlayerCombatController" method="update_aim"]
 [connection signal="caster_requested" from="Movement/InputHandler2D" to="Combat/PlayerCombatController" method="request_caster"]
 [connection signal="core_next_requested" from="Movement/InputHandler2D" to="Combat/PlayerCombatController" method="request_next_core"]

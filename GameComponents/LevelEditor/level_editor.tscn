@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://ivi7ho5s7guv"]
 
-[ext_resource type="Script" path="res://GameComponents/LevelEditor/level_editor.gd" id="1"]
+[ext_resource type="Script" uid="uid://c2ddi38lquidx" path="res://GameComponents/LevelEditor/level_editor.gd" id="1"]
 
-[node name="LevelEditor" type="Node2D"]
+[node name="LevelEditor" type="Node2D" unique_id=1519170252]
 script = ExtResource("1")

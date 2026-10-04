@@ -21,6 +21,7 @@ CutscenePreviewRunner="*uid://j3bmdd1ed67k"
 Cuts="*res://addons/CutsceneSystem/cuts.gd"
 GlobalGUI="*res://GameComponents/UI/global_gui.tscn"
 SFX="*res://GameComponents/Audio/sfx_manager.tscn"
+UpgradeMenu="*res://GameComponents/UI/player_upgrade_menu.gd"
 
 [display]
 

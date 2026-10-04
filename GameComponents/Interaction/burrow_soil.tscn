@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=3]
+
+[sub_resource type="RectangleShape2D" id="SoilShape"]
+size = Vector2(256, 96)
+
+[node name="BurrowSoil" type="StaticBody2D" groups=["burrow_soil"]]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Soil" type="Polygon2D" parent="."]
+color = Color(0.36, 0.23, 0.12, 1)
+polygon = PackedVector2Array(-128, 0, 128, 0, 128, 96, -128, 96)
+
+[node name="Grass" type="Polygon2D" parent="."]
+color = Color(0.36, 0.65, 0.22, 1)
+polygon = PackedVector2Array(-128, 0, 128, 0, 128, 6, -128, 6)
+
+[node name="Label" type="Label" parent="."]
+offset_left = -100.0
+offset_right = 100.0
+offset_top = 34.0
+offset_bottom = 60.0
+text = "BURROWABLE SOIL"
+horizontal_alignment = 1
+modulate = Color(1, 0.83, 0.6, 0.7)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 48)
+shape = SubResource("SoilShape")

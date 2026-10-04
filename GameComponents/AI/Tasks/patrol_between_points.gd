@@ -15,6 +15,17 @@ var _pause_remaining := 0.0
 
 func setup(root) -> void:
 	super.setup(root)
+	# Authored instance settings survive packing without modifying the enemy scene.
+	if ai_root and ai_root.actor and ai_root.actor.has_meta("editor_patrol"):
+		var settings: Dictionary = ai_root.actor.get_meta("editor_patrol")
+		for key in ["point_a", "point_b"]:
+			var point: Node2D = point_a if key == "point_a" else point_b
+			if point and settings.has(key):
+				point.top_level = false
+				point.position = settings[key]
+		pause_at_point = float(settings.get("pause", pause_at_point))
+		speed_multiplier = float(settings.get("speed", speed_multiplier))
+		start_at_point_b = bool(settings.get("start_b", start_at_point_b))
 	_target_index = 1 if start_at_point_b else 0
 	_detach_point_from_actor(point_a)
 	_detach_point_from_actor(point_b)

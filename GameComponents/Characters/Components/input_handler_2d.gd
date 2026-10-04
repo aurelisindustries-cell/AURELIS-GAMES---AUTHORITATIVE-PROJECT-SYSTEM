@@ -10,6 +10,7 @@ signal dash_requested
 signal slide_requested
 signal aim_updated(direction: Vector2)
 signal caster_requested(module_slot: int)
+signal caster_released
 signal dagger_requested(module_slot: int)
 signal ability_requested
 signal core_previous_requested
@@ -81,6 +82,7 @@ func input(delta: float = 0.0) -> void:
 		if Input.is_action_pressed(down_input): slide_requested.emit()
 		else: dash_requested.emit()
 	if _is_action_just_pressed(caster_input): caster_requested.emit(_get_module_slot())
+	if _is_action_just_released(caster_input): caster_released.emit()
 	if _is_action_just_pressed(dagger_input): dagger_requested.emit(_get_module_slot())
 	if _is_action_just_pressed(ability_input): ability_requested.emit()
 	if _is_action_just_pressed(map_input): map_requested.emit()

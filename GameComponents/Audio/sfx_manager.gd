@@ -61,7 +61,12 @@ func _scan_scene() -> void:
 
 
 func _on_node_added(node: Node) -> void:
-	call_deferred("_bind_node", node)
+	call_deferred("_bind_node_id", node.get_instance_id())
+
+
+func _bind_node_id(id: int) -> void:
+	var node := instance_from_id(id) as Node
+	if is_instance_valid(node) and node.is_inside_tree(): _bind_node(node)
 
 
 func _bind_node(node: Node) -> void:
@@ -70,26 +75,37 @@ func _bind_node(node: Node) -> void:
 	node.tree_exited.connect(_on_bound_node_exited.bind(node), CONNECT_ONE_SHOT)
 	if node is CharacterController and node.controlling and node.controlling.is_in_group(&"player"):
 		var controller := node as CharacterController
-		controller.movement_action.connect(_on_player_movement)
-		controller.landed.connect(_on_player_landed)
+		if not controller.movement_action.is_connected(_on_player_movement):
+			controller.movement_action.connect(_on_player_movement)
+		if not controller.landed.is_connected(_on_player_landed):
+			controller.landed.connect(_on_player_landed)
 	elif node is PlayerCombatController:
-		(node as PlayerCombatController).dagger_used.connect(_on_dagger_used)
-		(node as PlayerCombatController).caster_fired.connect(_on_caster_fired)
+		if not (node as PlayerCombatController).dagger_used.is_connected(_on_dagger_used):
+			(node as PlayerCombatController).dagger_used.connect(_on_dagger_used)
+		if not (node as PlayerCombatController).caster_fired.is_connected(_on_caster_fired):
+			(node as PlayerCombatController).caster_fired.connect(_on_caster_fired)
 	elif node is HealthComponent:
 		var health := node as HealthComponent
-		health.damaged.connect(_on_health_damaged.bind(health))
-		health.died.connect(_on_health_died.bind(health))
+		if not health.damaged.is_connected(_on_health_damaged.bind(health)):
+			health.damaged.connect(_on_health_damaged.bind(health))
+		if not health.died.is_connected(_on_health_died.bind(health)):
+			health.died.connect(_on_health_died.bind(health))
 	elif node is EnemyCombatController:
 		var combat := node as EnemyCombatController
-		combat.attack_started.connect(_on_enemy_attack_started)
+		if not combat.attack_started.is_connected(_on_enemy_attack_started):
+			combat.attack_started.connect(_on_enemy_attack_started)
 	elif node is LocalDoor:
-		(node as LocalDoor).used.connect(_on_door_used)
+		if not (node as LocalDoor).used.is_connected(_on_door_used):
+			(node as LocalDoor).used.connect(_on_door_used)
 	elif node is BossArea:
 		var area := node as BossArea
-		area.encounter_started.connect(_on_boss_started)
-		area.encounter_completed.connect(_on_boss_completed)
+		if not area.encounter_started.is_connected(_on_boss_started):
+			area.encounter_started.connect(_on_boss_started)
+		if not area.encounter_completed.is_connected(_on_boss_completed):
+			area.encounter_completed.connect(_on_boss_completed)
 	elif node is BossPhaseController:
-		(node as BossPhaseController).phase_changed.connect(_on_boss_phase_changed)
+		if not (node as BossPhaseController).phase_changed.is_connected(_on_boss_phase_changed):
+			(node as BossPhaseController).phase_changed.connect(_on_boss_phase_changed)
 
 
 func _on_bound_node_exited(node: Node) -> void:

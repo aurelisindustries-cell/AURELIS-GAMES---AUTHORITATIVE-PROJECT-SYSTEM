@@ -71,6 +71,7 @@ var standing_collider_height := 0.0
 var standing_collider_y := 0.0
 var body_collision: CollisionShape2D
 var was_on_floor := false
+var burrowing := false
 
 
 func _ready() -> void:
@@ -97,6 +98,7 @@ func setup_states() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if burrowing: return
 	if not controlling or not state_machine:
 		return
 	jump_buffer_remaining = maxf(jump_buffer_remaining - delta, 0.0)
@@ -185,7 +187,7 @@ func start_ground_jump(state_jump_velocity: float = jump_velocity) -> void:
 
 
 func try_air_jump(state_jump_velocity: float = jump_velocity) -> bool:
-	if propulsor_jump_available:
+	if has_propulsor_step and propulsor_jump_available:
 		propulsor_jump_available = false
 		velocity.y = state_jump_velocity
 		emit_movement_action(&"propulsor_step", &"5")

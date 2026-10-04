@@ -39,6 +39,15 @@ signal dagger_module_requested(slot: int)
 @export var guided_turn_strength: float = 7.0
 @export var spread_angle_degrees: float = 14.0
 
+@export_group("Caster upgrades")
+@export var has_piercing_module: bool = true
+@export var has_spread_module: bool = true
+@export var has_guided_module: bool = true
+@export var has_charged_caster: bool = true
+@export var has_dash_shot: bool = true
+@export var has_buster_v1: bool = false
+@export var buster_charge_time: float = 0.5
+
 @export_category("Arc Dagger")
 @export var dagger_damage: int = 1
 @export var dagger_buffer_time: float = 0.18
@@ -46,6 +55,29 @@ signal dagger_module_requested(slot: int)
 @export var dagger_vertical_offset: float = 30.0
 @export_range(0, 2, 1) var dagger_combo_upgrades: int = 0
 @export var dagger_combo_window: float = 0.38
+@export var has_up_slash: bool = true
+@export var has_downstab: bool = true
+@export var has_pogo: bool = true
+@export var has_extended_edge_1: bool = false
+@export var has_extended_edge_2: bool = false
+@export var has_reinforced_edge_1: bool = false
+@export var has_reinforced_edge_2: bool = false
+@export var edge_damage_per_tier: int = 2
+@export var edge_reach_per_tier: float = 0.25
+
+@export_category("Evolved Abilities")
+@export var has_vine_whip: bool = false
+@export var has_burrow: bool = false
+@export_enum("vine_whip", "burrow") var selected_evolved := "vine_whip"
+@export var burrow_speed := 150.0
+@export var burrow_duration := 5.0
+var burrow: Node2D
+@export var vine_whip_damage: int = 4
+@export var vine_whip_range: float = 220.0
+@export var vine_whip_cooldown: float = 0.65
+
+var _vine_cooldown := 0.0
+var _vine: Node2D
 
 var aim_direction := Vector2.ZERO
 var _caster_buffer := 0.0
@@ -62,6 +94,8 @@ var _active_projectiles := 0
 var _dash_shot_used := false
 var _pending_caster_module: String = ""
 var _current_dagger_type: StringName = &"normal"
+var _charging := false
+var _charge_elapsed := 0.0
 
 
 func _ready() -> void:
@@ -77,9 +111,23 @@ func _ready() -> void:
 		authored_hitbox_spawner.hit_landed.connect(_on_authored_hitbox_landed)
 	if combat_animation_player:
 		combat_animation_player.animation_finished.connect(_on_combat_animation_finished)
+	if character_controller and character_controller.controlling:
+		var lifecycle := character_controller.controlling.find_child("PlayerLifecycleComponent", true, false)
+		if lifecycle: lifecycle.respawn_started.connect(cancel_charge)
+		burrow = preload("res://GameComponents/Combat/burrow_ability.gd").new()
+		burrow.name = "BurrowAbility"
+		character_controller.controlling.add_child.call_deferred(burrow)
 
 
 func _process(delta: float) -> void:
+	if selected_evolved == "burrow" and not has_burrow and has_vine_whip: selected_evolved = "vine_whip"
+	if selected_evolved == "vine_whip" and not has_vine_whip and has_burrow: selected_evolved = "burrow"
+	_vine_cooldown = maxf(0, _vine_cooldown - delta)
+	if _charging:
+		if not has_buster_v1 or not has_charged_caster:
+			_charging = false
+		else:
+			_charge_elapsed += delta
 	_update_aim_rig()
 	_caster_buffer = maxf(_caster_buffer - delta, 0.0)
 	_dagger_buffer = maxf(_dagger_buffer - delta, 0.0)
@@ -111,25 +159,45 @@ func _update_aim_rig() -> void:
 	if aim_indicator:
 		aim_indicator.set_engaged(aim_direction != Vector2.ZERO)
 	if attack_visual_rig:
-		attack_visual_rig.scale.x = absf(attack_visual_rig.scale.x) * character_controller.facing_direction
+		attack_visual_rig.scale = Vector2(character_controller.facing_direction, 1) * dagger_reach_multiplier()
 	if authored_hitbox_spawner:
 		authored_hitbox_spawner.scale.x = absf(authored_hitbox_spawner.scale.x) * character_controller.facing_direction
 
 
 func request_caster(module_slot: int = 0) -> void:
+	if character_controller and character_controller.burrowing: return
+	_charging = has_buster_v1 and has_charged_caster and module_slot == 0
+	_charge_elapsed = 0.0
 	if module_slot > 0:
 		caster_module_requested.emit(module_slot)
 		_pending_caster_module = left_caster_module if module_slot == 1 else right_caster_module
+		if not is_module_enabled(_pending_caster_module): _pending_caster_module = ""
 	else:
 		_pending_caster_module = ""
 	_caster_buffer = caster_buffer_time
 
 
 func fire_charged_caster() -> void:
+	if not has_charged_caster: return
 	_fire_caster(charged_damage_multiplier)
 
 
+func release_caster() -> void:
+	var ready := _charging and has_buster_v1 and has_charged_caster and _charge_elapsed >= buster_charge_time
+	_charging = false
+	_charge_elapsed = 0.0
+	if ready and _caster_cooldown <= 0 and _active_projectiles < max_active_projectiles:
+		_pending_caster_module = ""
+		fire_charged_caster()
+
+
+func cancel_charge() -> void:
+	_charging = false
+	_charge_elapsed = 0.0
+
+
 func request_dagger(module_slot: int = 0) -> void:
+	if character_controller and character_controller.burrowing: return
 	if module_slot > 0:
 		dagger_module_requested.emit(module_slot)
 		return
@@ -141,14 +209,47 @@ func request_dagger(module_slot: int = 0) -> void:
 
 func request_ability() -> void:
 	ability_requested.emit()
+	if is_instance_valid(burrow) and burrow.is_inside_tree() and burrow.active:
+		burrow.finish()
+		return
+	if selected_evolved == "burrow" and has_burrow:
+		if is_instance_valid(burrow) and burrow.is_inside_tree(): burrow.begin()
+		return
+	if not has_vine_whip and has_burrow:
+		selected_evolved = "burrow"
+		if is_instance_valid(burrow) and burrow.is_inside_tree(): burrow.begin()
+		return
+	if not has_vine_whip or _vine_cooldown > 0 or is_instance_valid(_vine) or not character_controller: return
+	var body := character_controller.controlling
+	if not body: return
+	var health := body.find_child("HealthComponent", true, false) as HealthComponent
+	var input := body.find_child("InputHandler2D", true, false) as InputHandler2D
+	if (health and health.current_health <= 0) or (input and not input.can_input): return
+	_vine = preload("res://GameComponents/Combat/vine_whip_2d.gd").new()
+	body.add_child(_vine)
+	_vine.setup(body, _get_fire_direction(), vine_whip_range, vine_whip_damage)
+	_vine_cooldown = vine_whip_cooldown
+
+
+func cancel_vine_whip() -> void:
+	if is_instance_valid(_vine): _vine.queue_free()
 
 
 func request_previous_core() -> void:
 	core_previous_requested.emit()
+	cycle_evolved()
 
 
 func request_next_core() -> void:
 	core_next_requested.emit()
+	cycle_evolved()
+
+
+func cycle_evolved() -> void:
+	if character_controller and character_controller.burrowing: return
+	if has_burrow and has_vine_whip: selected_evolved = "burrow" if selected_evolved == "vine_whip" else "vine_whip"
+	elif has_burrow: selected_evolved = "burrow"
+	else: selected_evolved = "vine_whip"
 
 
 func open_core_wheel(direction: int) -> void:
@@ -169,13 +270,14 @@ func _fire_caster(damage_multiplier: float = 1.0) -> void:
 		return
 	var direction := _get_fire_direction()
 	var damage := maxi(roundi(caster_damage * damage_multiplier), 1)
-	if state_machine and state_machine.current_state and state_machine.current_state.name == &"Dash" and not _dash_shot_used:
+	if has_dash_shot and state_machine and state_machine.current_state and state_machine.current_state.name == &"Dash" and not _dash_shot_used:
 		damage += dash_shot_bonus_damage
 		_dash_shot_used = true
 	var hit := HitData.new()
 	hit.damage = damage
 	hit.attack_type = &"caster"
 	hit.faction = &"player"
+	if not is_module_enabled(_pending_caster_module): _pending_caster_module = ""
 	match _pending_caster_module:
 		"spread":
 			var spread := deg_to_rad(spread_angle_degrees)
@@ -235,13 +337,13 @@ func _begin_dagger_attack() -> void:
 	elif dagger_combo_upgrades > 0:
 		_dagger_combo_step = mini(_dagger_combo_step + 1, dagger_combo_upgrades)
 	var offset := Vector2(character_controller.facing_direction * dagger_forward_offset, -20.0)
-	if character_controller.true_input_direction.y < -0.5:
+	if has_up_slash and character_controller.true_input_direction.y < -0.5:
 		_current_dagger_type = &"up_slash"
 		_dagger_combo_step = 0
 		offset = Vector2(0.0, -dagger_vertical_offset - 20.0)
 		if airborne:
 			character_controller.velocity.y = minf(character_controller.velocity.y, -90.0)
-	elif airborne and character_controller.true_input_direction.y > 0.5:
+	elif has_downstab and airborne and character_controller.true_input_direction.y > 0.5:
 		_current_dagger_type = &"downstab"
 		_dagger_combo_step = 0
 		offset = Vector2(0.0, dagger_vertical_offset)
@@ -260,7 +362,8 @@ func _begin_dagger_attack() -> void:
 	elif _dagger_combo_step == 2:
 		hit.reaction = &"launch"
 		hit.knockback = Vector2(0.0, -280.0)
-	_pending_dagger_hit = hit
+	_pending_dagger_hit = upgraded_dagger_hit(hit)
+	dagger_hitbox.scale = Vector2.ONE * dagger_reach_multiplier()
 	_play_dagger_animation(_current_dagger_type)
 	_dagger_phase = DaggerPhase.STARTUP
 	_dagger_buffer = 0.0
@@ -282,6 +385,7 @@ func _spawn_dagger_visual(type: StringName, position_offset := Vector2.ZERO, att
 		get_tree().current_scene.add_child(visual)
 		visual.global_position = character_controller.controlling.global_position + Vector2(0.0, -22.0) + position_offset
 	visual.setup(type, character_controller.facing_direction)
+	visual.scale *= dagger_reach_multiplier()
 
 
 func _play_dagger_animation(type: StringName) -> void:
@@ -316,7 +420,7 @@ func _on_dagger_hit(_hurtbox: HurtboxComponent2D, _hit: HitData) -> void:
 	if not character_controller or character_controller.controlling.is_on_floor():
 		return
 	character_controller.register_airborne_dagger_hit()
-	if _current_dagger_type == &"downstab":
+	if has_pogo and _current_dagger_type == &"downstab":
 		_spawn_dagger_visual(&"downstab_impact", Vector2(0.0, 42.0), false)
 		character_controller.perform_downstab_rebound()
 
@@ -333,3 +437,22 @@ func _on_projectile_removed() -> void:
 func _snap_to_eight_directions(direction: Vector2) -> Vector2:
 	var step := PI / 4.0
 	return Vector2.RIGHT.rotated(roundf(direction.angle() / step) * step)
+
+
+
+func is_module_enabled(module: String) -> bool:
+	match module:
+		"piercing": return has_piercing_module
+		"spread": return has_spread_module
+		"guided": return has_guided_module
+	return false
+
+
+func upgraded_dagger_hit(hit: HitData) -> HitData:
+	var result := hit.duplicate() as HitData
+	result.damage += (int(has_reinforced_edge_1) + int(has_reinforced_edge_2)) * edge_damage_per_tier
+	return result
+
+
+func dagger_reach_multiplier() -> float:
+	return 1.0 + (int(has_extended_edge_1) + int(has_extended_edge_2)) * edge_reach_per_tier
